@@ -4,7 +4,7 @@ var url = "mongodb://localhost:27017/";
 MongoClient.connect(url, function (err, db) {
     if (err) throw err;
     var dbo = db.db("dbtest");
-    var collection = dbo.collection("player");
+    // var collection = dbo.collection("player");
 
     // 1) Suppose there is a dearth in willow production this year and the bat manufacturer can only supply bats for either right-handed 
     // or left-handed batsmen but not both. Write a query for the bat manufacturer that groups the players by batting hand so that you 
@@ -97,42 +97,90 @@ MongoClient.connect(url, function (err, db) {
     // 6) One last thing we can do to ease readability for the Olympic board is to sort the players in alphabetical order in addition 
     // to all the changes we implemented previously. Put all your knowledge together and count number of players of each country that bat with 
     // a given hand. Remove null values of Batting_Hand and sort the output in alphabetical order. 
+    // collection.aggregate([
+    //     {
+    //         $match:
+    //             { Batting_Hand: { $ne: null } }
+    //     },
+    //     {
+    //         $group: {
+    //             _id: {
+    //                 Country: "$Country",
+    //                 Batting_Hand: "$Batting_Hand"
+    //             },
+    //             playerCount: { $sum: 1 }
+    //         }
+    //     },
+    //     {
+    //         $sort: {
+    //             _id: 1
+    //         }
+    //     }
+    // ]).toArray().then((result) => {
+    //     console.log(result);
+    // });
+
+
+    // 7) Our employees are members of different departments. Deconstruct the deparments array such that there is a separate document 
+    // for each department an employee belongs to. 
+    // var collection = dbo.collection("employee");
+    // collection.aggregate([
+    //     {
+    //         $unwind: "$departments"
+    //     }
+    // ]).toArray().then((result) => {
+    //     console.log(result);
+    // });
+
+
+    // 8) In order to find an object's location in an array, include the index position. 
+    // var collection = dbo.collection("employee");
+    // collection.aggregate([
+    //     {
+    //         $unwind: {
+    //             path: "$departments", 
+    //             includeArrayIndex: "arrayIndex"
+    //         }
+    //     }
+    // ]).toArray().then((result) => {
+    //     console.log(result);
+    // });
+
+
+    // 9) Let's crunch some numbers! Count the number of departments an employee belongs to.
+    // var collection = dbo.collection("employee");
+    // collection.aggregate([
+    //     { $unwind: "$departments" },
+    //     {
+    //         $group:
+    //         {
+    //             _id: { firstName: "$name" },
+    //             numberOfDepartments: { $sum: 1 }
+    //         }
+    //     }
+    // ]).toArray().then((result) => {
+    //     console.log(result);
+    // });
+
+    // 10) Write a query that counts the number of employees in each department. To make things more interesting, perform this action 
+    // only against employees having empno greater than or equal to 3.
+    var collection = dbo.collection("employee");
     collection.aggregate([
+        { $unwind: "$departments" },
         {
             $match:
-                { Batting_Hand: { $ne: null } }
+                { empno: { $gte: 3 } }
         },
         {
-            $group: {
-                _id: {
-                    Country: "$Country",
-                    Batting_Hand: "$Batting_Hand"
-                },
-                playerCount: { $sum: 1 }
-            }
-        },
-        {
-            $sort: {
-                _id: 1
+            $group:
+            {
+                _id: { departmentName: "$departments" },
+                numberOfEmployees: { $sum: 1 }
             }
         }
     ]).toArray().then((result) => {
         console.log(result);
     });
-
-
-    // 7) Our employees are members of different departments. Deconstruct the deparments array such that there is a separate document 
-    // for each department an employee belongs to. 
-
-
-    // 8) In order to find an object's location in an array, include the index position. 
-
-
-    // 9) Let's crunch some numbers! Count the number of departments an employee belongs to.
-
-
-    // 10) Write a query that counts the number of employees in each department. To make things more interesting, perform this action 
-    // only against employees having empno greater than or equal to 3.
 
 
 });
